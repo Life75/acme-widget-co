@@ -2,6 +2,8 @@ import logo from './logo.svg';
 import './App.css';
 import React, { Component } from "react";
 
+//TODO class HashTable, create a hash datastruct and replace given func for the hashing
+
 class Customer {
   constructor() {
     this.firstname ='';
@@ -42,15 +44,10 @@ class Customer {
   setBusinessType(businessType) {this.businessType = businessType;}
   getBusinessType() {return this.businessType;}
 
-
-
-
   
-
-
-
-
 }
+
+//TODO RELATED CONTACTS 
 class App extends Component {
   constructor(props) {
     super(props);
@@ -60,6 +57,67 @@ class App extends Component {
     };
 
     this.sqlParser = this.sqlParser.bind(this);
+    this.createCustomers = this.createCustomers.bind(this);
+    this.placeArrIntoHash = this.placeArrIntoHash.bind(this);
+  //  this.placeIntoHash = this.placeIntoHash.bind(this);
+    this.getHashKey = this.getHashKey.bind(this);
+
+  }
+  //TODO add adding/removing into hash and db functionality
+  placeArrIntoHash(customerHolder, maxSize) {
+    maxSize += 100;
+    this.customerArr= new Array(maxSize);
+
+    while(customerHolder.length != 0) {
+      var customer = customerHolder.pop();
+      var key = this.getHashKey(customer, maxSize);
+
+      console.log('length: ' + (customer.getFirstName().length + customer.getLastName().length));
+      console.log('key: ' + key);
+
+      this.setState(this.customerArr[key]=customer);
+      console.log(this.customerArr[key].getFirstName());
+    }
+  }
+
+
+  getHashKey(customer, maxSize) {
+   var key = maxSize % (customer.getFirstName().length + customer.getLastName().length);
+   while(this.state.customerArr[key] != null) {
+     key++;
+   }
+   return key;
+  }
+
+/*
+  placeIntoHash(customer, maxSize) {
+    maxSize += 100;
+    this.customerArr = new Array(maxSize);
+  }
+  */
+  //For some reason pop() doesn't work here so had to do weird implementation
+  createCustomers(newResults ,numOfInputs) {
+    var maxSize =0;
+    var customerHolder = [];
+    for(var i=0; i < newResults.length; i++) {
+      var customer = new Customer();
+      
+      customer.setFirstName(newResults[i])
+      customer.setLastName(newResults[i+1])
+      customer.setDescription(newResults[i+2])
+      customer.setAddressOne(newResults[i+3])
+      customer.setAddressTwo(newResults[i+4])
+      customer.setCity(newResults[i+5])
+      customer.setState(newResults[i+6])
+      customer.setZip(newResults[i+7])
+      customer.setBusinessType(newResults[i+8])
+
+      customerHolder.push(customer) //places them in array, later can implement a hashtable possibly
+      maxSize++;
+      //console.log(customer.getFirstName())
+      i += numOfInputs;
+    }
+    this.placeArrIntoHash(customerHolder,maxSize);
   }
 
   //parses and places into customer objects and return a customer object array from init database input 
@@ -76,25 +134,10 @@ class App extends Component {
         })
       }
     }
-    //For some reason pop() doesn't work here so had to do weird implementation
-    const numOfInputs = 8;
-    for(var i=0; i < newResults.length; i++) {
-      var customer = new Customer();
-      
-      customer.setFirstName(newResults[i])
-      customer.setLastName(newResults[i+1])
-      customer.setDescription(newResults[i+2])
-      customer.setAddressOne(newResults[i+3])
-      customer.setAddressTwo(newResults[i+4])
-      customer.setCity(newResults[i+5])
-      customer.setState(newResults[i+6])
-      customer.setZip(newResults[i+7])
-      customer.setBusinessType(newResults[i+8])
 
-      this.state.customerArr.push(customer); //places them in array, later can implement a hashtable possibly
-      console.log(customer.getFirstName())
-      i += numOfInputs;
-    }
+    const numOfInputs = 8;
+    this.createCustomers(newResults, numOfInputs);
+
   }
 
   componentDidMount() {
