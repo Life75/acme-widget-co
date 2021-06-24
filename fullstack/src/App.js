@@ -61,6 +61,7 @@ class App extends Component {
     this.placeArrIntoHash = this.placeArrIntoHash.bind(this);
   //  this.placeIntoHash = this.placeIntoHash.bind(this);
     this.getHashKey = this.getHashKey.bind(this);
+    this.renderCustomers = this.renderCustomers.bind(this);
 
   }
   //TODO add adding/removing into hash and db functionality
@@ -75,9 +76,11 @@ class App extends Component {
       console.log('length: ' + (customer.getFirstName().length + customer.getLastName().length));
       console.log('key: ' + key);
 
-      this.setState(this.customerArr[key]=customer);
+      this.customerArr[key]=customer;
       console.log(this.customerArr[key].getFirstName());
+      this.setState({customerArr : this.customerArr})
     }
+
   }
 
 
@@ -148,20 +151,34 @@ class App extends Component {
     return fetch('http://localhost:3001')
     .then(result => result.json())
     .then(data => {
-        return this.sqlParser(data);
+        this.sqlParser(data);
+        console.log(this.state.customerArr.length)
+        this.renderCustomers();
     })
   }
 
+  renderCustomers () {
+    this.state.customerArr.map((customer) => <p>{customer.getFirstName()}</p>)
+    
+    console.log()
+    
+   
+   // console.log("here");
+  }
 
-  //renderCustomer = ({FirstName, LastName, Age}) => <div key={Age}>{FirstName} {LastName}</div>
-
+ // renderCustomers = 
   render() {
-    const {customers} = this.state;
+    const customers = this.state.customerArr.map((c) => <details key={c.getFirstName()}><summary>{c.getFirstName()}</summary>{c.getZip()}</details>)
     return (
       <div className="App">
+       {customers}
       </div>
     );
   }
 }
+
+
+
+
 
 export default App;
