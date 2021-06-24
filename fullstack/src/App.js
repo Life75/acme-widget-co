@@ -84,6 +84,7 @@ class App extends Component {
     holder[key] = null;
     this.setState({customerArr: holder});
     console.log('deleted customer key: ' + key);
+    //this.state.customerArr.map((customer) => customer ? console.log('heyo') : null)
     //this.updateList();
 
   }
@@ -199,7 +200,7 @@ class App extends Component {
 
     var renderCustomers =
       this.state.customerArr.map((customer) => customer ? 
-      <details key={customer.getFirstName()}>
+      <details key={customer.getKey()}>
         <summary>
           {customer.getFirstName()} {customer.getLastName()}
         </summary>
