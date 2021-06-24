@@ -66,7 +66,6 @@ class App extends Component {
   //  this.placeIntoHash = this.placeIntoHash.bind(this);
     this.getNewHashKey = this.getNewHashKey.bind(this);
     this.onDismiss = this.onDelete.bind(this);
-    this.updateList = this.updateList.bind(this);
   
 
   }
@@ -89,31 +88,7 @@ class App extends Component {
 
   }
 
-  updateList() {
 
-      this.state.customerArr.map((customer) => 
-      <details key={customer.getFirstName()}>
-        <summary>
-          {customer.getFirstName()} {customer.getLastName()}
-        </summary>
-          Name: {customer.getFirstName()}&nbsp;{customer.getLastName()}<br/>
-          Description: {customer.getDescription()}<br/>
-          Address Line 1: {customer.getAddressOne()}<br/>
-          Address Line 2: {customer.getAddressTwo()}<br/>
-          City: {customer.getCity()}<br/>
-          State: {customer.getState()}<br/>
-          Zip: {customer.getZip()}<br/>
-          Business Type: {customer.getBusinessType()}<br/>
-          <Button 
-          onClick={() => this.onDelete(customer)}
-  
-          >
-            Delete
-          </Button>
-      </details> 
-    )
-    
-  }
 
   //TODO add adding/removing into hash and db functionality
   placeArrIntoHash(customerHolder, maxSize) {
