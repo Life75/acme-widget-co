@@ -2,7 +2,8 @@ import logo from './logo.svg';
 import './App.css';
 import React, { Component } from "react";
 
-const KEY_TOO_BIG = -1;
+const KEY_TOO_BIG = -1; 
+const NUM_OF_INPUTS = 9; //# of values for customer data type e.g. : firstname, lastname...
 //TODO class HashTable, create a hash datastruct and replace given func for the hashing
 
 class CustomerContacts {
@@ -18,11 +19,11 @@ class CustomerContacts {
 
 class Customer {
   constructor() {
-    this.firstname ='';
-    this.lastname = '';
-    this.description = '';
-    this.addressOne = '';
-    this.addressTwo = '';
+    this.firstname ='default';
+    this.lastname = 'default';
+    this.description = 'default';
+    this.addressOne = 'default';
+    this.addressTwo = 'default';
     this.city = '';
     this.state = '';
     this.businessType = '';
@@ -81,46 +82,61 @@ class App extends Component {
       description: '',
       addressLineOne: '',
       addressLineTwo: '',
-      City: '',
-      State: '',
-      Zip: '',
-      BusinessType: '',
+      city: '',
+      state: '',
+      zip: '',
+      businessType: '',
 
     };
 
     this.sqlParser = this.sqlParser.bind(this);
     this.createCustomers = this.createCustomers.bind(this);
     this.placeArrIntoHashFromDB = this.placeArrIntoHashFromDB.bind(this);
-  //  this.placeIntoHash = this.placeIntoHash.bind(this);
     this.getNewHashKey = this.getNewHashKey.bind(this);
     this.onDelete = this.onDelete.bind(this);
     this.createCustomerButton = this.createCustomerButton.bind(this);
     this.onSubmitCustomer = this.onSubmitCustomer.bind(this);
-    
-
+    this.addCustomer = this.addCustomer.bind(this);
+    this.findCustomerInDB = this.findCustomerInDB.bind(this);
+    this.changeHandler = this.changeHandler.bind(this);
+    this.test = this.test.bind(this);
 
   
 
   }
 
-  changeHandler= (event) => {
-    //console.log(event.target.value);
-    if (event.target.name == 'State') {
-      console.log('for the state: ' + event.target.value)
-    } 
+  changeHandler(event) {
+    console.log(event.target.value);
 
-    if (event.target.name == 'fname') {
-      console.log('for the first name: ' + event.target.value)
-    } 
+    this.setState({[event.target.name]: event.target.value})
+}
 
-  }
+    
+  
+    
+
 
   onSubmitCustomer = (event) => {
-    event.preventDefault();
-    //console.log(event.target.value);
-    console.log(event.target.name)
+    
+   
 
-    this.setState({createCustomerSwitch: false})
+    
+    var customer = new Customer();
+    customer.setFirstName(this.state.firstname);
+    customer.setLastName(this.state.lastname);
+    customer.setDescription(this.state.description);
+    customer.setAddressOne(this.state.addressLineOne);
+    customer.setAddressTwo(this.state.addressLineTwo);
+    customer.setCity(this.state.City);
+    customer.setState(this.state.state);
+    customer.setZip(this.state.zip);
+    customer.setBusinessType(this.state.BusinessType);
+    //console.log(customer.getFirstName());
+    this.addCustomer(customer);
+    
+    //this.setState({createCustomerSwitch: false})
+    event.preventDefault();
+
   }
 
 
@@ -133,6 +149,28 @@ class App extends Component {
     button.style.display = "none"
 
     
+
+  }
+
+  addCustomer(customer) {
+    this.addCustomerToDB(customer);
+    var id = this.findCustomerInDB(customer);
+
+    //TODO add then find and get key from database of that customer
+    customer.setID(id);
+    this.addCustomerToHash(customer);
+    
+  }
+
+  addCustomerToHash(customer) {
+    var holder = [...this.state.customerArr];
+    var key = this.getNewHashKey(customer, this.state.customerArr.length);
+    holder[key] = customer;
+    this.setState({customerArr: holder});
+
+    
+
+
 
   }
 
@@ -169,16 +207,25 @@ class App extends Component {
     //console.log(`http://localhost:3001/customer/delete?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`)
   }
 //
-  addToDB(customer) {
+  addCustomerToDB(customer) {
     //TODO ADD INTO DATA AND RETRIVE KEY AS WELL AND ADD IT TO THE CUSTOMER 
+    console.log(customer.getFirstName());
     
     fetch(`http://localhost:3001/customer/add?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`)
+  
+  }
+
+  findCustomerInDB(customer) {
+    var id;
     
+    fetch(`http://localhost:3001/customer/find?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`)
+    .then(result => result.json())
+    .then(data => {
+      console.log(id=this.sqlParser(data))
+    })
+    return id;
   }
 
-  addCustomerToHash(customer) {
-
-  }
 
 
 
@@ -211,7 +258,7 @@ class App extends Component {
       sum += digit;
     }
 
-   var key = maxSize % sum;
+   var key = sum % maxSize;
    while(this.state.customerArr[key] != null) {
      key++;
      if(key > maxSize) return KEY_TOO_BIG;
@@ -269,13 +316,24 @@ class App extends Component {
       }
     }
 
-    const numOfInputs = 9;
-    this.createCustomers(newResults, numOfInputs);
+    return newResults;
 
+  }
+
+  test() {
+  var trying = <div className='test'>
+
+    </div>
+
+
+    console.log('heyo')
+
+    return trying
   }
 
   componentDidMount() {
     this.getCustomers();
+    //this.test();
     
   }
 
@@ -283,7 +341,8 @@ class App extends Component {
     return fetch('http://localhost:3001')//TODO format into vars
     .then(result => result.json())
     .then(data => {
-        this.sqlParser(data);
+        this.createCustomers(this.sqlParser(data), NUM_OF_INPUTS);
+
         console.log(this.state.customerArr.length)
     })
   }
@@ -301,7 +360,7 @@ class App extends Component {
 
     var renderCustomers =
       this.state.customerArr.map((customer) => customer ? 
-      <details key={customer.getKey()}>
+      <details key={customer.getID()}>
         <summary>
           {customer.getFirstName()} {customer.getLastName()}
         </summary>
@@ -338,137 +397,125 @@ class App extends Component {
 
 
 
-const CustomerFillIn = ({customer}) => 
-  <div className='customerFillIn'>
-    <form onSubmit={this.onSubmitCustomer}>
-    <label
-      for='fname'>
-    First name:&nbsp; 
-    </label> 
-    <input
-      type='text'
-      id='fname'
-      name='fname'
-      onChange={this.changeHandler}
-    />
-    <br></br>
+  
 
-    <label
-      for='lname'
-    >
-      Last name:&nbsp;
-    </label>
-    <input
-      type='text'
-      id='lname'
-      name='lname'
-      onChange={this.changeHandler}
-    />
-    <br></br>
-
-    <label
-      for='Description'
-    >
-      Description:&nbsp; 
-    </label>
-    <input
-      type='text'
-      id='description'
-      name='description'
-      onChange={this.changeHandler}
-    />
-    <br></br>
-
-    <label
-      for='Address_1'
-    >
-      Address Line 1:&nbsp;
-    </label>
-    <input
-      type='text'
-      id='Address_1'
-      name='Address_1'
-      onChange={this.changeHandler}
-    />
-    <br></br>
-
-    <label
-      for='Address_2'
-    >
-      Address Line 2:&nbsp;
-    </label>
-    <input
-      type='text'
-      id='Address_2'
-      name='Address_2'
-      onChange={this.changeHandler}
-    />
-    <br></br>
-
-    <label
-      for='City'
-    >
-      City:&nbsp;
-    </label>
-    <input
-      type='text'
-      id='City'
-      name='City'
-      onChange={this.changeHandler}
-    />
-    <br></br>
-
-    <label
-      for='State'
-    >
-      State:&nbsp;
-    </label>
-    <input
-      type='text'
-      id='State'
-      name='State'
-      onChange={this.changeHandler}
-    />
-    <br></br>
-
-    <label
-      for='Zip'
-    >
-      Zip:&nbsp;
-    </label>
-    <input
-      type='text'
-      id='Zip'
-      name='Zip'
-      onChange={this.changeHandler}
-    />
-    <br></br>
-
-    <label
-      for='BusinessType'
-    >
-      Business Type:&nbsp;
-    </label>
-    <input
-      type='text'
-      id='BusinessType'
-      name='BusinessType'
-      onChange={this.changeHandler}
-    />
-    <br></br>
-    <input
-      type='submit'
-    />
-    </form>
-  </div>
  
+  //        {this.state.createCustomerSwitch ? <CustomerFillIn/> : null}
 
     return (
       <div className="App">
         {renderCustomers}
         {renderCreateCustomerButton}
-        {this.state.createCustomerSwitch ? <CustomerFillIn/> : null}
-       
+        {this.state.createCustomerSwitch ? 
+          <div className='customerFillIn'>
+          <form onSubmit={this.onSubmitCustomer}>
+          <label
+          htmlFor='fname'
+          >
+          First name:&nbsp; 
+          </label> 
+          <input
+            type='text'
+            id='fname'
+            name='firstname'
+            value={this.state.firstname}
+            onChange={this.changeHandler}
+          />
+          <br></br>
+      
+          <label>
+            Last name:&nbsp;
+          </label>
+          <input
+            type='text'
+            name='lastname'
+            value={this.state.lastname}
+            onChange={this.changeHandler}
+          />
+          <br></br>
+      
+          <label>
+            Description:&nbsp; 
+          </label>
+          <input
+            type='text'
+            name='description'
+            value={this.state.description}
+            onChange={this.changeHandler}
+          />
+          <br></br>
+      
+          <label>
+            Address Line 1:&nbsp;
+          </label>
+          <input
+            type='text'
+            name='addressLineOne'
+            value={this.state.addressLineOne}
+            onChange={this.changeHandler}
+          />
+          <br></br>
+      
+          <label>
+            Address Line 2:&nbsp;
+          </label>
+          <input
+            type='text'
+            name='addressLineTwo'
+            value={this.state.addressLineTwo}
+            onChange={this.changeHandler}
+          />
+          <br></br>
+      
+          <label>
+            City:&nbsp;
+          </label>
+          <input
+            type='text'
+            name='city'
+            value={this.state.city}
+            onChange={this.changeHandler}
+          />
+          <br></br>
+      
+          <label>
+            State:&nbsp;
+          </label>
+          <input
+            type='text'
+            name='state'
+            value={this.state.state}
+            onChange={this.changeHandler}
+          />
+          <br></br>
+      
+          <label>
+            Zip:&nbsp;
+          </label>
+          <input
+            type='text'
+            name='zip'
+            value={this.state.zip}
+            onChange={this.changeHandler}
+          />
+          <br></br>
+      
+          <label>
+            Business Type:&nbsp;
+          </label>
+          <input
+            type='text'
+            name='businessType'
+            value={this.state.businessType}
+            onChange={this.changeHandler}
+          />
+          <br></br>
+          <input
+            type='submit'
+          />
+          </form>
+        </div>
+        : null}
       </div>
     );
   }
