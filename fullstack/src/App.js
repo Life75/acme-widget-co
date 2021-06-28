@@ -6,15 +6,28 @@ const KEY_TOO_BIG = -1;
 const NUM_OF_INPUTS = 9; //# of values for customer data type e.g. : firstname, lastname...
 //TODO class HashTable, create a hash datastruct and replace given func for the hashing
 
-class CustomerContacts {
+class CustomerContact {
   constructor() {
     this.firstname ='';
     this.lastname ='';
     this.phoneNum = '';
     this.emailAdd ='';
+    this.customerID ='';
   }
+  setFirstName(firstname) {this.firstname = firstname;}
+  getFirstName() {return this.firstname;}
 
-  //TODO getters and setters 
+  setLastName(lastname) {this.lastname=lastname;}
+  getLastName() {return this.lastname;}
+
+  setPhoneNum(phoneNum) {this.phoneNum=phoneNum;}
+  getPhoneNum() {return this.phoneNum;}
+
+  setEmailAdd(emailAdd) {this.emailAdd=emailAdd;}
+  getEmailAdd() {return this.emailAdd;}
+
+  setCustomerID(customerID) {this.customerID=customerID;}
+  getCustomerID() {return this.customerID;}
 }
 
 class Customer {
@@ -29,6 +42,7 @@ class Customer {
     this.businessType = '';
     this.key = null;
     this.id = -1;
+    this.customerContactArr= [];
   }
 
   setFirstName(firstname) {this.firstname = firstname;}
@@ -64,6 +78,17 @@ class Customer {
   setKey(key) {this.key = key;}
   getKey() {return this.key;}
 
+  addCustomerContact(CustomerContact) {
+    this.customerContactArr.push(this.customerContactArr);
+  }
+
+  removeCustomerContact(CustomerContact) {
+    //TODO this.customerContactArr.filter(CustomerContact);
+  }
+
+  getCustomerContacts() {
+    return this.customerContactArr;
+  }
   //TODO addCustomerContacts()
 
   
@@ -100,8 +125,20 @@ class App extends Component {
     this.findCustomerInDB = this.findCustomerInDB.bind(this);
     this.changeHandler = this.changeHandler.bind(this);
     this.test = this.test.bind(this);
+    this.addCustomerContact = this.addCustomerContact.bind(this);
 
   
+
+  }
+
+
+  addCustomerContact(customerContact) {
+
+    //addCustomerContactToDB()
+
+  }
+
+  addCustomerContactToDB(customerContact) {
 
   }
 
@@ -358,6 +395,9 @@ class App extends Component {
   render() {
     //TODO put into a func call later 
 
+
+
+
     var renderCustomers =
       this.state.customerArr.map((customer) => customer ? 
       <details key={customer.getID()}>
@@ -377,8 +417,18 @@ class App extends Component {
           onClick={() => this.onDelete(customer)}
   
           >
-            Delete
+            Delete Customer
           </Button>
+          
+          {customer.getCustomerContacts().map((customerContact) => 
+          <details key={customerContact.getFirstName()}>
+            <summary>
+              {customerContact.getFirstName()} {customerContact.getLastName()}
+            </summary>
+            Name: {customerContact.getFirstName()}&nbsp;{customer.getLastName()}<br/>
+            Phone Number: {customerContact.getPhoneNum()} 
+          </details>
+          )}
       </details> 
       : null
     )
