@@ -78,8 +78,9 @@ class Customer {
   setKey(key) {this.key = key;}
   getKey() {return this.key;}
 
-  addCustomerContact(CustomerContact) {
-    this.customerContactArr.push(this.customerContactArr);
+  addCustomerContact(customerContact) {
+    this.customerContactArr.push(customerContact);
+    //console.log(customerContact)
   }
 
   removeCustomerContact(CustomerContact) {
@@ -201,7 +202,7 @@ class App extends Component {
 
   addCustomerToHash(customer) {
     var holder = [...this.state.customerArr];
-    var key = this.getNewHashKey(customer, this.state.customerArr.length);
+    var key = this.getNewHashKey(customer.getID(), this.state.customerArr.length);
     holder[key] = customer;
     this.setState({customerArr: holder});
 
@@ -246,7 +247,7 @@ class App extends Component {
 //
   addCustomerToDB(customer) {
     //TODO ADD INTO DATA AND RETRIVE KEY AS WELL AND ADD IT TO THE CUSTOMER 
-    console.log(customer.getFirstName());
+    //console.log(customer.getFirstName());
     
     fetch(`http://localhost:3001/customer/add?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`)
   
@@ -273,34 +274,43 @@ class App extends Component {
 
     while(customerHolder.length != 0) {
       var customer = customerHolder.pop();
-      var key = this.getNewHashKey(customer, maxSize);
+      var key = this.getNewHashKey(customer.getID(), maxSize);
 
-      console.log('length: ' + (customer.getID()));
-      console.log('key: ' + key);
+      //console.log('length: ' + (customer.getID()));
+     // console.log('key: ' + key);
       
       customer.setKey(key);
       this.customerArr[key]=customer;
       console.log(this.customerArr[key].getFirstName());
       this.setState({customerArr : this.customerArr});
+      
     }
-
   }
 
 //finds an open free hash
 //TODO fault with how set up check over later for scalability concerns, works for now
-  getNewHashKey(customer, maxSize) {
-    var sum =0;
-    for(var i=0; i < customer.getID().length; i++) {
-      var digit = customer.getID().charCodeAt(i);
-      sum += digit;
-    }
+  getNewHashKey(customerID, maxSize) {
 
-   var key = sum % maxSize;
+    var key = this.hashKey(customerID);
+    
    while(this.state.customerArr[key] != null) {
      key++;
      if(key > maxSize) return KEY_TOO_BIG;
    }
    return key;
+  }
+
+  hashKey(customerID) {
+
+    var sum =0;
+    for(var i=0; i < customerID.length; i++) {
+      var digit = customerID.charCodeAt(i);
+      sum += digit;
+    }
+
+   var key = sum % this.state.customerArr.length;
+   return key;
+
   }
 
 //finds the hash in an O(1) search 
@@ -363,15 +373,14 @@ class App extends Component {
     </div>
 
 
-    console.log('heyo')
 
     return trying
   }
 
   componentDidMount() {
     this.getCustomers();
-    //this.test();
-    
+    this.getContacts();
+
   }
 
   getCustomers = _ => {
@@ -380,11 +389,78 @@ class App extends Component {
     .then(data => {
         this.createCustomers(this.sqlParser(data), NUM_OF_INPUTS);
 
-        console.log(this.state.customerArr.length)
+        //console.log(this.state.customerArr.length)
+        //this.getContacts();
+        //this.getContacts();   
+
     })
   }
 
-  
+  getContacts = _ => {
+    return fetch('http://localhost:3001/contacts')
+    .then(result => result.json())
+    .then(data => {
+      //console.log(this.sqlParser(data));
+      //console.log('getContacts')
+      this.initContactsParser(this.sqlParser(data))
+
+      
+    })
+  }
+
+  initContactsParser(data) {
+    
+    // /console.log(data.length)
+    while(data.length > 0) {
+      var contact = new CustomerContact();
+      
+      contact.setFirstName(data.shift())
+      contact.setLastName(data.shift());
+      contact.setPhoneNum(data.shift());
+      contact.setEmailAdd(data.shift());
+      contact.setCustomerID(data.shift());
+      this.setContactToCustomer(contact);
+    }
+  }
+
+  setContactToCustomer(contact) {
+    //console.log(contact.getCustomerID());
+    var key = this.findHashKey(contact.getCustomerID());
+    
+    if(key != KEY_TOO_BIG) {
+      this.state.customerArr[key].addCustomerContact(contact);
+    } 
+
+    //console.log(this.state.customerArr[key].getCustomerContacts())
+    //find through hash table 
+    //var key = this.getNewHashKey
+
+  }
+
+  findHashKey(customerID) {
+    var key = this.hashKey(customerID);
+
+
+    console.log(this.state.customerArr[key])
+
+    if(this.state.customerArr[key] != null) {
+      while(this.customerArr[key].getID() != customerID) {
+        key++;
+        
+        if(key > this.customerArr.length) {
+          console.log('not found')
+          return KEY_TOO_BIG;
+        }
+      }
+      console.log('found');
+      return key; 
+    } 
+    else return KEY_TOO_BIG;
+  }
+
+
+
+  //
 
 
 
@@ -399,7 +475,8 @@ class App extends Component {
 
 
     var renderCustomers =
-      this.state.customerArr.map((customer) => customer ? 
+      this.state.customerArr.map((customer) => customer ?
+      <div> 
       <details key={customer.getID()}>
         <summary>
           {customer.getFirstName()} {customer.getLastName()}
@@ -419,21 +496,30 @@ class App extends Component {
           >
             Delete Customer
           </Button>
-          
-          {customer.getCustomerContacts().map((customerContact) => 
-          <details key={customerContact.getFirstName()}>
-            <summary>
+      </details> 
+      </div>
+      : null
+    )
+
+    var renderContacts =
+    this.state.customerArr.map((customer) => customer ?
+    <div> 
+      <p>{customer.getCustomerContacts()}</p>
+    </div>
+    : null
+    )
+
+
+/*
+        <details key={customerContact.getFirstName()}>
+            {console.log(customerContact)}
+          <summary>
               {customerContact.getFirstName()} {customerContact.getLastName()}
             </summary>
             Name: {customerContact.getFirstName()}&nbsp;{customer.getLastName()}<br/>
             Phone Number: {customerContact.getPhoneNum()} 
           </details>
-          )}
-      </details> 
-      : null
-    )
-
-
+*/
 
 
     var renderCreateCustomerButton =
@@ -455,6 +541,7 @@ class App extends Component {
     return (
       <div className="App">
         {renderCustomers}
+        {renderContacts}
         {renderCreateCustomerButton}
         {this.state.createCustomerSwitch ? 
           <div className='customerFillIn'>
