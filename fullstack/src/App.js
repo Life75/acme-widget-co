@@ -42,7 +42,6 @@ class Customer {
     this.businessType = '';
     this.key = null;
     this.id = -1;
-    this.customerContactArr= [];
   }
 
   setFirstName(firstname) {this.firstname = firstname;}
@@ -78,21 +77,6 @@ class Customer {
   setKey(key) {this.key = key;}
   getKey() {return this.key;}
 
-  addCustomerContact(customerContact) {
-    this.customerContactArr.push(customerContact);
-    //console.log(customerContact)
-  }
-
-  removeCustomerContact(CustomerContact) {
-    //TODO this.customerContactArr.filter(CustomerContact);
-  }
-
-  getCustomerContacts() {
-    return this.customerContactArr;
-  }
-  //TODO addCustomerContacts()
-
-  
 }
 
 //TODO RELATED CONTACTS 
@@ -102,6 +86,7 @@ class App extends Component {
 
     this.state = {
       customerArr: [],
+      customerContactArr: [],
       createCustomerSwitch: false,
       firstname: '',
       lastname: '',
@@ -125,7 +110,6 @@ class App extends Component {
     this.addCustomer = this.addCustomer.bind(this);
     this.findCustomerInDB = this.findCustomerInDB.bind(this);
     this.changeHandler = this.changeHandler.bind(this);
-    this.test = this.test.bind(this);
     this.addCustomerContact = this.addCustomerContact.bind(this);
 
   
@@ -205,11 +189,6 @@ class App extends Component {
     var key = this.getNewHashKey(customer.getID(), this.state.customerArr.length);
     holder[key] = customer;
     this.setState({customerArr: holder});
-
-    
-
-
-
   }
 
 
@@ -217,13 +196,9 @@ class App extends Component {
  
 
   onDelete(customer) {
-    //TODO find and delete from hash and database 
-    //console.log(customer.getFirstName())
-    //var holder = [...this.state.customerArr];
     this.deleteFromDB(customer);
     this.deleteFromHash(customer.getKey());
-    //console.log(key);
-    //this.setState({customerArr[this.getHashKey(customer,this.customerArr.length)] : null})
+    //TODO DELETE CUSTOMER CONTACTS AS WELL
   }
 
   deleteFromHash(key) {
@@ -281,8 +256,9 @@ class App extends Component {
       
       customer.setKey(key);
       this.customerArr[key]=customer;
-      console.log(this.customerArr[key].getFirstName());
+      //console.log(this.customerArr[key].getFirstName());
       this.setState({customerArr : this.customerArr});
+      
       
     }
   }
@@ -367,20 +343,9 @@ class App extends Component {
 
   }
 
-  test() {
-  var trying = <div className='test'>
-
-    </div>
-
-
-
-    return trying
-  }
-
   componentDidMount() {
     this.getCustomers();
     this.getContacts();
-
   }
 
   getCustomers = _ => {
@@ -419,49 +384,34 @@ class App extends Component {
       contact.setPhoneNum(data.shift());
       contact.setEmailAdd(data.shift());
       contact.setCustomerID(data.shift());
-      this.setContactToCustomer(contact);
+      this.setState({customerContactArr : [...this.state.customerContactArr, contact]})
     }
+    //this.setState({customerContactArr: this.customerContactArr })
+
+    this.state.customerContactArr.forEach(e => console.log(e));
   }
 
-  setContactToCustomer(contact) {
-    //console.log(contact.getCustomerID());
-    var key = this.findHashKey(contact.getCustomerID());
-    
-    if(key != KEY_TOO_BIG) {
-      this.state.customerArr[key].addCustomerContact(contact);
-    } 
 
-    //console.log(this.state.customerArr[key].getCustomerContacts())
-    //find through hash table 
-    //var key = this.getNewHashKey
-
-  }
 
   findHashKey(customerID) {
     var key = this.hashKey(customerID);
 
 
-    console.log(this.state.customerArr[key])
+    //console.log(this.state.customerArr[key])
 
     if(this.state.customerArr[key] != null) {
       while(this.customerArr[key].getID() != customerID) {
         key++;
         
         if(key > this.customerArr.length) {
-          console.log('not found')
+          //console.log('not found')
           return KEY_TOO_BIG;
         }
       }
-      console.log('found');
       return key; 
     } 
     else return KEY_TOO_BIG;
   }
-
-
-
-  //
-
 
 
 
@@ -471,8 +421,25 @@ class App extends Component {
   render() {
     //TODO put into a func call later 
 
+    //TODO finish contact info 
+    var renderContacts =
+      //console.log(this.state.customerContactArr.length)
+      <div className='customerContacts'>
+      {this.state.customerContactArr.map((contact) => contact ?
+      <details key={contact.getCustomerID()}>
+        <summary>
+          {contact.getFirstName()} {contact.getLastName()}<br/>
+        </summary>
+      </details>    
+      : null
+      )} 
+ 
+      </div>
+  
 
 
+
+//TODO make a button to add a customer contact and  
 
     var renderCustomers =
       this.state.customerArr.map((customer) => customer ?
@@ -496,18 +463,15 @@ class App extends Component {
           >
             Delete Customer
           </Button>
-      </details> 
+      </details>
       </div>
       : null
     )
 
-    var renderContacts =
-    this.state.customerArr.map((customer) => customer ?
-    <div> 
-      <p>{customer.getCustomerContacts()}</p>
-    </div>
-    : null
-    )
+
+   
+
+
 
 
 /*
