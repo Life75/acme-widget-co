@@ -244,7 +244,7 @@ class App extends Component {
 
   //TODO add adding/removing into hash and db functionality
   placeArrIntoHashFromDB(customerHolder, maxSize) {
-    maxSize += 100;
+    maxSize += 9000;
     this.customerArr= new Array(maxSize);
 
     while(customerHolder.length != 0) {
@@ -422,7 +422,7 @@ class App extends Component {
     //TODO put into a func call later 
 
     //TODO finish contact info 
-    var renderContacts =
+  /*  var renderContacts =
       //console.log(this.state.customerContactArr.length)
       <div className='customerContacts'>
       {this.state.customerContactArr.map((contact) => contact ?
@@ -435,7 +435,14 @@ class App extends Component {
       )} 
  
       </div>
+  */
   
+    const renderContacts = (customer) => {
+      <div>
+    
+      </div> 
+
+    }
 
 
 
@@ -457,7 +464,23 @@ class App extends Component {
           Zip: {customer.getZip()}<br/>
           Business Type: {customer.getBusinessType()}<br/>
           ID# : {customer.getID()}<br/>
-          <Button 
+          <br/>
+
+
+          {customer.getFirstName()}'s Contacts: <br/>
+          {this.state.customerContactArr.map((contact) => contact.getCustomerID() == customer.getID() ? 
+          <details key={contact.getFirstName()}>
+            <summary>
+            {contact.getFirstName()}&nbsp;{contact.getLastName()}<br/>
+            </summary>
+            Phone Number: {contact.getPhoneNum()}<br/>
+            Email Address: {contact.getEmailAdd()}<br/>
+          </details>
+          : null
+          )
+          
+      }
+         <Button 
           onClick={() => this.onDelete(customer)}
   
           >
@@ -505,7 +528,6 @@ class App extends Component {
     return (
       <div className="App">
         {renderCustomers}
-        {renderContacts}
         {renderCreateCustomerButton}
         {this.state.createCustomerSwitch ? 
           <div className='customerFillIn'>
