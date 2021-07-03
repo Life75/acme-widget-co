@@ -111,11 +111,16 @@ class App extends Component {
     this.findCustomerInDB = this.findCustomerInDB.bind(this);
     this.changeHandler = this.changeHandler.bind(this);
     this.addCustomerContact = this.addCustomerContact.bind(this);
+    this.deleteContactInArr = this.deleteContactInArr.bind(this);
+    this.deleteAssociatedContacts = this.deleteAssociatedContacts.bind(this);
+    
 
   
 
   }
 
+
+  
 
   addCustomerContact(customerContact) {
 
@@ -185,17 +190,35 @@ class App extends Component {
   }
 
   addCustomerToHash(customer) {
+
     var holder = [...this.state.customerArr];
     var key = this.getNewHashKey(customer.getID(), this.state.customerArr.length);
     holder[key] = customer;
+    console.log('adding to hash')
     this.setState({customerArr: holder});
+
+
+
   }
 
 
+  deleteContactInArr(customer) {
+    this.setState({customerContactArr: [...this.state.customerContactArr.filter(ID => ID == customer.getID())]});
+  }
 
+
+  deleteAssociatedContacts(customer) {
+    //Delete from array
+    this.deleteContactInArr(customer);
+
+    //TODO Delete from database 
+
+
+  }
  
 
   onDelete(customer) {
+    this.deleteAssociatedContacts(customer);
     this.deleteFromDB(customer);
     this.deleteFromHash(customer.getKey());
     //TODO DELETE CUSTOMER CONTACTS AS WELL
@@ -246,30 +269,39 @@ class App extends Component {
   placeArrIntoHashFromDB(customerHolder, maxSize) {
     maxSize += 9000;
     this.customerArr= new Array(maxSize);
+    this.setState({customerArr : this.customerArr});
 
     while(customerHolder.length != 0) {
       var customer = customerHolder.pop();
       var key = this.getNewHashKey(customer.getID(), maxSize);
 
       //console.log('length: ' + (customer.getID()));
-     // console.log('key: ' + key);
+      //console.log('key: ' + key);
       
       customer.setKey(key);
       this.customerArr[key]=customer;
+      console.log('placed')
       //console.log(this.customerArr[key].getFirstName());
-      this.setState({customerArr : this.customerArr});
+
       
       
     }
+
+    console.log(this.state.customerArr)
+    this.setState({customerArr : this.customerArr});
+
+
+
   }
 
 //finds an open free hash
 //TODO fault with how set up check over later for scalability concerns, works for now
   getNewHashKey(customerID, maxSize) {
-
     var key = this.hashKey(customerID);
+    console.log('keye: ' + key)
     
    while(this.state.customerArr[key] != null) {
+    console.log('here ' + customerID)
      key++;
      if(key > maxSize) return KEY_TOO_BIG;
    }
@@ -284,6 +316,11 @@ class App extends Component {
       sum += digit;
     }
 
+   console.log('sum: ' + sum)
+
+   if(this.state.customerArr.length == 0) {
+
+   }
    var key = sum % this.state.customerArr.length;
    return key;
 
@@ -436,20 +473,14 @@ class App extends Component {
  
       </div>
   */
-  
-    const renderContacts = (customer) => {
-      <div>
-    
-      </div> 
 
-    }
 
 
 
 //TODO make a button to add a customer contact and  
 
     var renderCustomers =
-      this.state.customerArr.map((customer) => customer ?
+      this.state.customerArr.map((customer) => customer ? 
       <div> 
       <details key={customer.getID()}>
         <summary>
@@ -469,7 +500,7 @@ class App extends Component {
 
           {customer.getFirstName()}'s Contacts: <br/>
           {this.state.customerContactArr.map((contact) => contact.getCustomerID() == customer.getID() ? 
-          <details key={contact.getFirstName()}>
+          <details>
             <summary>
             {contact.getFirstName()}&nbsp;{contact.getLastName()}<br/>
             </summary>
