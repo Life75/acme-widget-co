@@ -88,6 +88,7 @@ class App extends Component {
       customerArr: [],
       customerContactArr: [],
       createCustomerSwitch: false,
+      createContactSwitch: false,
       firstname: '',
       lastname: '',
       description: '',
@@ -98,6 +99,11 @@ class App extends Component {
       zip: '',
       businessType: '',
 
+      firstnameContact: '',
+      lastnameContact: '',
+      phoneNumContact: '',
+      emailAddContact: '',
+      customerID: '',
     };
 
     this.sqlParser = this.sqlParser.bind(this);
@@ -113,19 +119,30 @@ class App extends Component {
     this.addCustomerContact = this.addCustomerContact.bind(this);
     this.deleteContactInArr = this.deleteContactInArr.bind(this);
     this.deleteAssociatedContacts = this.deleteAssociatedContacts.bind(this);
+    this.onAddContact = this.onAddContact.bind(this);
     
 
   
 
   }
 
+  onAddContact(customerID) {
+    this.setState({})
+  }
+
 
   
 
-  addCustomerContact(customerContact) {
-
+  addCustomerContact(contact) {
+    console.log(contact.getCustomerID())
+    this.addCustomerContactToArr(contact);
     //addCustomerContactToDB()
+    //AddToArray
 
+  }
+
+  addCustomerContactToArr(contact) {
+    this.setState({customerContactArr: [...this.state.customerContactArr, contact]})
   }
 
   addCustomerContactToDB(customerContact) {
@@ -138,16 +155,31 @@ class App extends Component {
     this.setState({[event.target.name]: event.target.value})
 }
 
-    
+
+  onSubmitContact = (event) => {
+    var contact = new CustomerContact();
+    contact.setFirstName(this.state.firstnameContact);
+    contact.setLastName(this.state.lastnameContact);
+    contact.setPhoneNum(this.state.phoneNumContact);
+    contact.setEmailAdd(this.state.emailAddContact);
+    contact.setCustomerID(this.state.customerID);
+
+
+    this.addCustomerContact(contact);
+    this.setState({createContactSwitch: false})
+
+    event.preventDefault();
+
+    var button = document.getElementById('createContact');
+    console.log(button.style.display)
+    button.style.display = "inline"
+  }
   
     
 
 
   onSubmitCustomer = (event) => {
-    
-   
 
-    
     var customer = new Customer();
     customer.setFirstName(this.state.firstname);
     customer.setLastName(this.state.lastname);
@@ -160,6 +192,8 @@ class App extends Component {
     customer.setBusinessType(this.state.BusinessType);
     //console.log(customer.getFirstName());
     this.addCustomer(customer);
+    var button = document.getElementById('createCustomer');
+    button.style.display = "inline"
     
     //this.setState({createCustomerSwitch: false})
     event.preventDefault();
@@ -172,11 +206,15 @@ class App extends Component {
     this.setState({createCustomerSwitch: true});
     
     var button = document.getElementById('createCustomer');
-    console.log('hey')
     button.style.display = "none"
+  }
 
-    
+  createContactSwitch(customerID) {
+    this.setState({createContactSwitch: true});
+    this.setState({customerID: customerID});
 
+    var button = document.getElementById('createContact');
+    button.style.display = "none";
   }
 
   addCustomer(customer) {
@@ -214,6 +252,7 @@ class App extends Component {
     //TODO Delete from database 
 
 
+
   }
  
 
@@ -221,7 +260,6 @@ class App extends Component {
     this.deleteAssociatedContacts(customer);
     this.deleteFromDB(customer);
     this.deleteFromHash(customer.getKey());
-    //TODO DELETE CUSTOMER CONTACTS AS WELL
   }
 
   deleteFromHash(key) {
@@ -248,7 +286,7 @@ class App extends Component {
     //console.log(customer.getFirstName());
     
     fetch(`http://localhost:3001/customer/add?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`)
-  
+    .catch(err => console.error(err))
   }
 
   findCustomerInDB(customer) {
@@ -459,6 +497,8 @@ class App extends Component {
     //TODO put into a func call later 
 
     //TODO finish contact info 
+
+
   /*  var renderContacts =
       //console.log(this.state.customerContactArr.length)
       <div className='customerContacts'>
@@ -478,6 +518,13 @@ class App extends Component {
 
 
 //TODO make a button to add a customer contact and  
+    var renderCreateCustomerButton =
+      <Button
+        onClick={() => this.createCustomerButton()}
+        id='createCustomer'
+        >
+        Create Customer 
+      </Button>
 
     var renderCustomers =
       this.state.customerArr.map((customer) => customer ? 
@@ -494,66 +541,51 @@ class App extends Component {
           State: {customer.getState()}<br/>
           Zip: {customer.getZip()}<br/>
           Business Type: {customer.getBusinessType()}<br/>
-          ID# : {customer.getID()}<br/>
+          ID#: {customer.getID()}<br/>
           <br/>
 
 
+        <br/>
+
           {customer.getFirstName()}'s Contacts: <br/>
           {this.state.customerContactArr.map((contact) => contact.getCustomerID() == customer.getID() ? 
-          <details>
-            <summary>
-            {contact.getFirstName()}&nbsp;{contact.getLastName()}<br/>
-            </summary>
-            Phone Number: {contact.getPhoneNum()}<br/>
-            Email Address: {contact.getEmailAdd()}<br/>
-          </details>
+          <div>
+            <details>
+              <summary>
+              {contact.getFirstName()}&nbsp;{contact.getLastName()}<br/>
+              </summary>
+              Phone Number: {contact.getPhoneNum()}<br/>
+              Email Address: {contact.getEmailAdd()}<br/>
+              <Button
+                onClick={() => this.onDeleteContact(contact)}
+              >
+                Delete Contact
+              </Button>
+            </details>
+
+            
+          </div>
           : null
           )
-          
       }
-         <Button 
-          onClick={() => this.onDelete(customer)}
-  
-          >
-            Delete Customer
-          </Button>
+
+
+        <Button
+        onClick={() => this.createContactSwitch(customer.getID())}
+        id='createContact'
+        >
+          Add Contact
+        </Button>
+
+      <Button 
+       onClick={() => this.onDelete(customer)}
+       >
+         Delete Customer
+      </Button>
       </details>
       </div>
       : null
     )
-
-
-   
-
-
-
-
-/*
-        <details key={customerContact.getFirstName()}>
-            {console.log(customerContact)}
-          <summary>
-              {customerContact.getFirstName()} {customerContact.getLastName()}
-            </summary>
-            Name: {customerContact.getFirstName()}&nbsp;{customer.getLastName()}<br/>
-            Phone Number: {customerContact.getPhoneNum()} 
-          </details>
-*/
-
-
-    var renderCreateCustomerButton =
-      <Button
-      onClick={() => this.createCustomerButton()}
-      id='createCustomer'
-      >
-      Create Customer 
-      </Button>
-
-
-
-
-  
-
- 
   //        {this.state.createCustomerSwitch ? <CustomerFillIn/> : null}
 
     return (
@@ -669,8 +701,73 @@ class App extends Component {
           />
           </form>
         </div>
-        : null}
+        : null
+      }
+      {this.state.createContactSwitch ?
+        <div className='contactFillin'>
+          <form onSubmit={this.onSubmitContact}>
+            <label
+            htmlFor='fnameContact'
+            >
+            First name:&nbsp;
+            </label>
+            <input
+              type='text'
+              id='fnameContact'
+              name='firstnameContact'
+              value={this.state.firstnameContact}
+              onChange={this.changeHandler}
+            />
+            <br/>
+
+            <label
+              htmlFor='lastnameContact'
+            >
+              Last name:&nbsp;
+            </label>
+            <input
+              type='text'
+              name='lastnameContact'
+              value={this.state.lastnameContact}
+              onChange={this.changeHandler}
+            />
+            <br/>
+
+          <label 
+            htmlFor='phoneNumContact'
+          >
+            Phone Number:&nbsp;
+          </label>
+          <input
+            type='text'
+            name='phoneNumContact'
+            value={this.state.phoneNumContact}
+            onChange={this.changeHandler}
+          />
+          <br/>
+
+          <label
+            htmlFor='emailAddContact'
+          >
+            Email Address:&nbsp;
+          </label>
+          <input
+            type='text'
+            name='emailAddContact'
+            value={this.state.emailAddContact}
+            onChange={this.changeHandler}
+          />
+          <br/>
+
+          <input
+            type='submit'
+          />
+        </form>
+        </div>
+        : null
+      }
       </div>
+    
     );
   }
 }
