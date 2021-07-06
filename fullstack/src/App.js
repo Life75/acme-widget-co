@@ -117,7 +117,6 @@ class App extends Component {
     this.findCustomerInDB = this.findCustomerInDB.bind(this);
     this.changeHandler = this.changeHandler.bind(this);
     this.addCustomerContact = this.addCustomerContact.bind(this);
-    this.deleteContactInArr = this.deleteContactInArr.bind(this);
     this.deleteAssociatedContacts = this.deleteAssociatedContacts.bind(this);
     
 
@@ -185,14 +184,15 @@ class App extends Component {
     contact.setCustomerID(this.state.customerID);
 
 
-    this.addCustomerContact(contact);
+   // this.addCustomerContact(contact);
     this.setState({createContactSwitch: false})
-
-    event.preventDefault();
-
     var button = document.getElementById('createContact');
     console.log(button.style.display)
     button.style.display = "inline"
+
+    event.preventDefault();
+
+    
   }
   
     
@@ -240,11 +240,8 @@ class App extends Component {
   addCustomer(customer) {
     this.addCustomerToDB(customer);
     var id = this.findCustomerInDB(customer);
-
-    //TODO add then find and get key from database of that customer
     customer.setID(id);
-    this.addCustomerToHash(customer);
-    
+    this.addCustomerToHash(customer); 
   }
 
   addCustomerToHash(customer) {
@@ -260,20 +257,19 @@ class App extends Component {
   }
 
 
-  deleteContactInArr(customer) {
-    this.setState({customerContactArr: [...this.state.customerContactArr.filter(ID => ID == customer.getID())]});
+  deleteCascadeContactsArr(customer) {
+    this.setState({customerContactArr: [...this.state.customerContactArr.filter(con => con.getCustomerID() !== customer.getID())]})
+  }
+
+  deleteCascadeContactsDB(customer) {
+     fetch(`http://localhost:3001/customer/contact/cascade/delete?customerID=${customer.getID()}`)
   }
 
 
   deleteAssociatedContacts(customer) {
     //Delete from array
-    this.deleteContactInArr(customer);
-
-    //TODO Delete from database 
-    //this.deleteContactInDb()
-
-
-
+    this.deleteCascadeContactsArr(customer);
+    this.deleteCascadeContactsDB(customer);
   }
  
 
@@ -333,20 +329,11 @@ class App extends Component {
     while(customerHolder.length != 0) {
       var customer = customerHolder.pop();
       var key = this.getNewHashKey(customer.getID(), maxSize);
-
-      //console.log('length: ' + (customer.getID()));
-      //console.log('key: ' + key);
       
       customer.setKey(key);
       this.customerArr[key]=customer;
-      console.log('placed')
-      //console.log(this.customerArr[key].getFirstName());
-
-      
       
     }
-
-    console.log(this.state.customerArr)
     this.setState({customerArr : this.customerArr});
 
 
@@ -356,11 +343,9 @@ class App extends Component {
 //finds an open free hash
 //TODO fault with how set up check over later for scalability concerns, works for now
   getNewHashKey(customerID, maxSize) {
-    var key = this.hashKey(customerID);
-    console.log('keye: ' + key)
-    
+  var key = this.hashKey(customerID);
+
    while(this.state.customerArr[key] != null) {
-    console.log('here ' + customerID)
      key++;
      if(key > maxSize) return KEY_TOO_BIG;
    }
@@ -374,9 +359,6 @@ class App extends Component {
       var digit = customerID.charCodeAt(i);
       sum += digit;
     }
-
-   console.log('sum: ' + sum)
-
    if(this.state.customerArr.length == 0) {
 
    }
@@ -470,8 +452,6 @@ class App extends Component {
   }
 
   initContactsParser(data) {
-    
-    // /console.log(data.length)
     while(data.length > 0) {
       var contact = new CustomerContact();
       
@@ -482,9 +462,6 @@ class App extends Component {
       contact.setCustomerID(data.shift());
       this.setState({customerContactArr : [...this.state.customerContactArr, contact]})
     }
-    //this.setState({customerContactArr: this.customerContactArr })
-
-    this.state.customerContactArr.forEach(e => console.log(e));
   }
 
 
@@ -492,15 +469,11 @@ class App extends Component {
   findHashKey(customerID) {
     var key = this.hashKey(customerID);
 
-
-    //console.log(this.state.customerArr[key])
-
     if(this.state.customerArr[key] != null) {
       while(this.customerArr[key].getID() != customerID) {
         key++;
         
         if(key > this.customerArr.length) {
-          //console.log('not found')
           return KEY_TOO_BIG;
         }
       }
