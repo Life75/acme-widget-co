@@ -72,7 +72,7 @@ class Customer {
   getBusinessType() {return this.businessType;}
 
   setID(id) {this.id = id;}
-  getID(id) {return this.id;}
+  getID() {return this.id;}
 
   setKey(key) {this.key = key;}
   getKey() {return this.key;}
@@ -119,24 +119,46 @@ class App extends Component {
     this.addCustomerContact = this.addCustomerContact.bind(this);
     this.deleteContactInArr = this.deleteContactInArr.bind(this);
     this.deleteAssociatedContacts = this.deleteAssociatedContacts.bind(this);
-    this.onAddContact = this.onAddContact.bind(this);
     
 
   
 
   }
 
-  onAddContact(customerID) {
-    this.setState({})
+  deleteContactInDb(contact) {
+    fetch(`http://localhost:3001/customer/contact/delete?Firstname=${contact.getFirstName()}&Lastname=${contact.getLastName()}&Phone_number=${contact.getPhoneNum()}&Email_address=${contact.getEmailAdd()}&customerID=${contact.getCustomerID()}`)
+    console.log('contact deleted')
   }
 
+  deleteThisContactFromArr(contact) {
+    this.setState({customerContactArr: [...this.state.customerContactArr.filter(con => 
+      con.getFirstName() != contact.getFirstName() ||
+      con.getLastName() != contact.getLastName() ||
+      con.getPhoneNum() != contact.getPhoneNum() ||
+      con.getCustomerID() != contact.getCustomerID()
+      )]})
+
+      console.log('working: ' + contact.getFirstName())
+      console.log(this.state.customerContactArr)
+  }
 
   
 
+  onDeleteContact(contact) {
+    this.deleteThisContactFromArr(contact);
+    this.deleteContactInDb(contact);
+  }
+
+  addCustomerContactToDB(customerContact) {
+    fetch(`http://localhost:3001/customer/contact/add?Firstname=${customerContact.getFirstName()}&Lastname=${customerContact.getLastName()}&Phone_number=${customerContact.getPhoneNum()}&Email_address=${customerContact.getEmailAdd()}&customerID=${customerContact.getCustomerID()}`);
+  }
+
   addCustomerContact(contact) {
     console.log(contact.getCustomerID())
+    //Add to array 
     this.addCustomerContactToArr(contact);
-    //addCustomerContactToDB()
+    
+    this.addCustomerContactToDB(contact);
     //AddToArray
 
   }
@@ -145,9 +167,7 @@ class App extends Component {
     this.setState({customerContactArr: [...this.state.customerContactArr, contact]})
   }
 
-  addCustomerContactToDB(customerContact) {
 
-  }
 
   changeHandler(event) {
     console.log(event.target.value);
@@ -250,6 +270,7 @@ class App extends Component {
     this.deleteContactInArr(customer);
 
     //TODO Delete from database 
+    //this.deleteContactInDb()
 
 
 
