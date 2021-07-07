@@ -4,7 +4,6 @@ import React, { Component } from "react";
 
 const KEY_TOO_BIG = -1; 
 const NUM_OF_INPUTS = 9; //# of values for customer data type e.g. : firstname, lastname...
-//TODO class HashTable, create a hash datastruct and replace given func for the hashing
 
 class CustomerContact {
   constructor() {
@@ -123,11 +122,6 @@ class App extends Component {
     this.addCustomerContact = this.addCustomerContact.bind(this);
     this.deleteAssociatedContacts = this.deleteAssociatedContacts.bind(this);
     this.addCustomerToHash = this.addCustomerToHash.bind(this);
-
-    
-
-  
-
   }
 
   deleteContactInDb(contact) {
@@ -159,13 +153,8 @@ class App extends Component {
   }
 
   addCustomerContact(contact) {
-    console.log(contact.getCustomerID())
-    //Add to array 
     this.addCustomerContactToArr(contact);
-    
     this.addCustomerContactToDB(contact);
-    //AddToArray
-
   }
 
   addCustomerContactToArr(contact) {
@@ -191,13 +180,21 @@ class App extends Component {
 
 
     this.addCustomerContact(contact);
-    this.setState({createContactSwitch: false})
+   
     var button = document.getElementById('createContact');
     console.log(button.style.display)
     button.style.display = "inline"
-    event.preventDefault();
 
-    
+    this.setState({createContactSwitch: false})
+    this.setState({
+      firstnameContact: '',
+      lastnameContact: '',
+      phoneNumContact: '',
+      emailAddContact: '',
+      customerID: '',
+    })
+
+    event.preventDefault();
   }
   
     
@@ -261,40 +258,13 @@ class App extends Component {
     customer.setKey(key);
     holder[key] = customer;
     this.setState({customerArr: holder});
+
   }
 
   addCustomer(customer) {
     this.addCustomerToDB(customer);
-    //
-    this.addCustomerToArr(customer)
-   // console.log(id);
-   /* let result = id.then(function(result) {
-      //console.log(result)
-      console.log(result);
-      customer.setID(result);
-      console.log(customer.getID())
-      
-      return result;
-
-    });*/
-
-  
-
-
-
-
-
+    this.addCustomerToArr(customer);
   }
-  //console.log(result);
-  //console.log('something')
-
-
-    
-
-
-    //this.addCustomerToHash(customer);
-
-
 
   deleteCascadeContactsArr(customer) {
     this.setState({customerContactArr: [...this.state.customerContactArr.filter(con => con.getCustomerID() !== customer.getID())]})
@@ -368,7 +338,6 @@ class App extends Component {
     maxSize += 9000;
     this.customerArr= new Array(maxSize);
     this.setState({customerArr : this.customerArr});
-
     while(customerHolder.length != 0) {
       var customer = customerHolder.pop();
       var key = this.getNewHashKey(customer.getID(), maxSize);
@@ -421,7 +390,7 @@ class App extends Component {
   createCustomers(newResults ,numOfInputs) {
     var maxSize =0;
     var customerHolder = [];
-/*
+    //console.log(newResults.shift())
     while(newResults.length > 0) {
       var customer = new Customer();
 
@@ -437,13 +406,14 @@ class App extends Component {
       customer.setID(newResults.shift())
 
       customerHolder.push(customer);
+      console.log(customer)
       maxSize++;
     }
 
     this.placeArrIntoHashFromDB(customerHolder,maxSize);
   }
 
-*/
+/*
     for(var i=0; i < newResults.length; i++) {
       var customer = new Customer();
       
@@ -463,8 +433,9 @@ class App extends Component {
       //console.log(customer.getFirstName())
       i += numOfInputs;
     }
+  
     this.placeArrIntoHashFromDB(customerHolder,maxSize);
-  }
+  }*/
 
   //parses and places into customer objects and return a customer object array from init database input 
   sqlParser(data) {
