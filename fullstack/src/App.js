@@ -89,6 +89,7 @@ class App extends Component {
       customerContactArr: [],
       createCustomerSwitch: false,
       createContactSwitch: false,
+
       firstname: '',
       lastname: '',
       description: '',
@@ -104,6 +105,9 @@ class App extends Component {
       phoneNumContact: '',
       emailAddContact: '',
       customerID: '',
+
+
+      check: '',
     };
 
     this.sqlParser = this.sqlParser.bind(this);
@@ -114,10 +118,12 @@ class App extends Component {
     this.createCustomerButton = this.createCustomerButton.bind(this);
     this.onSubmitCustomer = this.onSubmitCustomer.bind(this);
     this.addCustomer = this.addCustomer.bind(this);
-    this.findCustomerInDB = this.findCustomerInDB.bind(this);
+    this.findCustomerInDB = this.addCustomerToArr.bind(this);
     this.changeHandler = this.changeHandler.bind(this);
     this.addCustomerContact = this.addCustomerContact.bind(this);
     this.deleteAssociatedContacts = this.deleteAssociatedContacts.bind(this);
+    this.addCustomerToHash = this.addCustomerToHash.bind(this);
+
     
 
   
@@ -184,12 +190,11 @@ class App extends Component {
     contact.setCustomerID(this.state.customerID);
 
 
-   // this.addCustomerContact(contact);
+    this.addCustomerContact(contact);
     this.setState({createContactSwitch: false})
     var button = document.getElementById('createContact');
     console.log(button.style.display)
     button.style.display = "inline"
-
     event.preventDefault();
 
     
@@ -210,12 +215,23 @@ class App extends Component {
     customer.setState(this.state.state);
     customer.setZip(this.state.zip);
     customer.setBusinessType(this.state.BusinessType);
-    //console.log(customer.getFirstName());
+
     this.addCustomer(customer);
     var button = document.getElementById('createCustomer');
     button.style.display = "inline"
-    
-    //this.setState({createCustomerSwitch: false})
+    //clear contents 
+    this.setState({createCustomerSwitch: false})
+    this.setState({
+      firstname: '',
+      lastname: '',
+      description: '',
+      addressLineOne: '',
+      addressLineTwo:'',
+      city: '',
+      state: '',
+      zip: '',
+      businessType: '',
+     })
     event.preventDefault();
 
   }
@@ -237,24 +253,47 @@ class App extends Component {
     button.style.display = "none";
   }
 
-  addCustomer(customer) {
-    this.addCustomerToDB(customer);
-    var id = this.findCustomerInDB(customer);
-    customer.setID(id);
-    this.addCustomerToHash(customer); 
-  }
 
+  
   addCustomerToHash(customer) {
-
     var holder = [...this.state.customerArr];
     var key = this.getNewHashKey(customer.getID(), this.state.customerArr.length);
+    customer.setKey(key);
     holder[key] = customer;
-    console.log('adding to hash')
     this.setState({customerArr: holder});
+  }
+
+  addCustomer(customer) {
+    this.addCustomerToDB(customer);
+    //
+    this.addCustomerToArr(customer)
+   // console.log(id);
+   /* let result = id.then(function(result) {
+      //console.log(result)
+      console.log(result);
+      customer.setID(result);
+      console.log(customer.getID())
+      
+      return result;
+
+    });*/
+
+  
+
+
 
 
 
   }
+  //console.log(result);
+  //console.log('something')
+
+
+    
+
+
+    //this.addCustomerToHash(customer);
+
 
 
   deleteCascadeContactsArr(customer) {
@@ -284,6 +323,7 @@ class App extends Component {
     holder[key] = null;
     this.setState({customerArr: holder});
     console.log('deleted customer key: ' + key);
+   // this.forceUpdate()
     //this.state.customerArr.map((customer) => customer ? console.log('heyo') : null)
     //this.updateList();
 
@@ -291,31 +331,34 @@ class App extends Component {
 
   deleteFromDB(customer) {
     fetch(`http://localhost:3001/customer/delete?ID=${customer.getID()}`)
-    //.then(response => response.json())
-    //.then(this.getCustomers)
     .catch(err => console.error(err))
-
-    //console.log(`http://localhost:3001/customer/delete?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`)
   }
-//
-  addCustomerToDB(customer) {
-    //TODO ADD INTO DATA AND RETRIVE KEY AS WELL AND ADD IT TO THE CUSTOMER 
-    //console.log(customer.getFirstName());
-    
+
+  addCustomerToDB(customer) {    
     fetch(`http://localhost:3001/customer/add?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`)
     .catch(err => console.error(err))
   }
 
-  findCustomerInDB(customer) {
-    var id;
+   async addCustomerToArr(customer) {
+    //find the customer ID made first then adds into the array
+    let response = await fetch(`http://localhost:3001/customer/find?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`)
+    let result = await response.json()
+    console.log('here')
+    await new Promise((resolve, reject) => setTimeout(resolve, 20));
+    //console.log(result)
     
-    fetch(`http://localhost:3001/customer/find?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`)
-    .then(result => result.json())
-    .then(data => {
-      console.log(id=this.sqlParser(data))
-    })
-    return id;
-  }
+ 
+    var id=this.sqlParser(result)[0]
+    this.setState({check: id})
+    customer.setID(id)
+    this.addCustomerToHash(customer)
+
+   }   
+      
+
+      
+  
+    
 
 
 
@@ -355,16 +398,14 @@ class App extends Component {
   hashKey(customerID) {
 
     var sum =0;
+    
     for(var i=0; i < customerID.length; i++) {
       var digit = customerID.charCodeAt(i);
       sum += digit;
     }
-   if(this.state.customerArr.length == 0) {
-
-   }
+  
    var key = sum % this.state.customerArr.length;
    return key;
-
   }
 
 //finds the hash in an O(1) search 
@@ -380,6 +421,29 @@ class App extends Component {
   createCustomers(newResults ,numOfInputs) {
     var maxSize =0;
     var customerHolder = [];
+/*
+    while(newResults.length > 0) {
+      var customer = new Customer();
+
+      customer.setFirstName(newResults.shift())
+      customer.setLastName(newResults.shift())
+      customer.setDescription(newResults.shift())
+      customer.setAddressOne(newResults.shift())
+      customer.setAddressTwo(newResults.shift())
+      customer.setCity(newResults.shift())
+      customer.setState(newResults.shift())
+      customer.setZip(newResults.shift())
+      customer.setBusinessType(newResults.shift())
+      customer.setID(newResults.shift())
+
+      customerHolder.push(customer);
+      maxSize++;
+    }
+
+    this.placeArrIntoHashFromDB(customerHolder,maxSize);
+  }
+
+*/
     for(var i=0; i < newResults.length; i++) {
       var customer = new Customer();
       
@@ -464,8 +528,6 @@ class App extends Component {
     }
   }
 
-
-
   findHashKey(customerID) {
     var key = this.hashKey(customerID);
 
@@ -486,32 +548,8 @@ class App extends Component {
 
 
 
- // renderCustomers = 
+
   render() {
-    //TODO put into a func call later 
-
-    //TODO finish contact info 
-
-
-  /*  var renderContacts =
-      //console.log(this.state.customerContactArr.length)
-      <div className='customerContacts'>
-      {this.state.customerContactArr.map((contact) => contact ?
-      <details key={contact.getCustomerID()}>
-        <summary>
-          {contact.getFirstName()} {contact.getLastName()}<br/>
-        </summary>
-      </details>    
-      : null
-      )} 
- 
-      </div>
-  */
-
-
-
-
-//TODO make a button to add a customer contact and  
     var renderCreateCustomerButton =
       <Button
         onClick={() => this.createCustomerButton()}
@@ -580,7 +618,6 @@ class App extends Component {
       </div>
       : null
     )
-  //        {this.state.createCustomerSwitch ? <CustomerFillIn/> : null}
 
     return (
       <div className="App">
