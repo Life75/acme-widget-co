@@ -141,7 +141,6 @@ class Customer {
   }
 }
 
-//TODO RELATED CONTACTS
 class App extends Component {
   constructor(props) {
     super(props);
@@ -224,7 +223,7 @@ class App extends Component {
 
   addCustomerContactToArr(contact) {
     this.setState({
-      customerContactArr: [...this.state.customerContactArr, contact],
+      customerContactArr: [...this.state.customerContactArr, contact]
     });
   }
 
@@ -272,7 +271,7 @@ class App extends Component {
 
     this.addCustomer(customer);
 
-    var button = document.getElementById("createCustomer");
+    var button = document.getElementById("createCustomerBtn");
     button.style.display = "inline";
     
     //clear contents
@@ -294,7 +293,7 @@ class App extends Component {
   createCustomerButton() {
     this.setState({ createCustomerSwitch: true });
 
-    var button = document.getElementById("createCustomer");
+    var button = document.getElementById("createCustomerBtn");
     button.style.display = "none";
   }
 
@@ -377,12 +376,12 @@ class App extends Component {
     );
     let result = await response.json();
 
-    await new Promise((resolve, reject) => setTimeout(resolve, 20));
+    await new Promise((resolve, reject) => setTimeout(resolve, 300));
 
     var id = this.sqlParser(result)[0];
+    console.log(id);
     this.setState({ check: id });
-
-    customer.setID(id);
+    customer.setID(this.state.check);
     this.addCustomerToHash(customer);
   }
 
@@ -526,14 +525,14 @@ class App extends Component {
 
   render() {
     var renderCreateCustomerButton = (
-      <Button onClick={() => this.createCustomerButton()} id="createCustomer">
+      <Button onClick={() => this.createCustomerButton()} id="createCustomerBtn" className="createCustomerBtn">
         Create Customer
       </Button>
     );
 
     var renderCustomers = this.state.customerArr.map((customer) =>
       customer ? (
-        <div>
+        <div className= 'renderCustomers'>
           <details key={customer.getID()}>
             <summary>
               {customer.getFirstName()} {customer.getLastName()}
@@ -593,8 +592,9 @@ class App extends Component {
 
     return (
       <div className="App">
-        {renderCustomers}
+        
         {renderCreateCustomerButton}
+        {renderCustomers}
         {this.state.createCustomerSwitch ? (
           <div className="customerFillIn">
             <form onSubmit={this.onSubmitCustomer}>
@@ -734,7 +734,7 @@ class App extends Component {
 
 const Button = ({
   onClick,
-  className = "defaultButton",
+  className = "btn from-top",
   children,
   id = "",
 }) => (
