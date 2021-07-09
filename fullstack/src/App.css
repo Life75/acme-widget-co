@@ -1,14 +1,53 @@
 .renderCustomers {
   
-  margin: 20px;
-  border: 3px solid orange;
-  padding: 10px;
+  max-width: 50%;
+  position: relative;
+  margin: auto;
+  top: 50%;
+  left: 50%;
+  margin-top: -50px;
 
+  margin: 3px;
+  border: 3px solid #374785;
+  padding: 10px;
+  border-radius: 25px;
+  
+  background-color: #f76c6c;
+  opacity: .75;
+}
+
+.renderCustomers:hover {
+  opacity: 1;
+}
+
+.header {
+  background-color: #F8E9A1;
+  border: 3px solid black;
+  padding: 10px;
+  font-family: goudy old style ;
+  font-style: italic;
+  font-size: 30px;
+  color: black;
 }
 
 .createCustomerBtn {
-  
-
-  
-  
+  background-color: #A8D0E6; /* Green */
+  border: solid #A8D0E6;
+  color: black;
+  padding: 15px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  font-family:  Verdana, Geneva, Tahoma, sans-serif;
+  border-radius: 15px;
 }
+
+.createCustomerBtn:hover {
+  background-color: grey;
+}
+
+body {
+  background-color: #A8D0E6;
+}
+

@@ -58,7 +58,7 @@ class Customer {
     this.addressTwo = "default";
     this.city = "";
     this.state = "";
-    this.businessType = "";
+    this.businessType = "default";
     this.key = null;
     this.id = -1;
   }
@@ -120,6 +120,7 @@ class Customer {
   }
 
   setBusinessType(businessType) {
+    console.log('setter'+businessType)
     this.businessType = businessType;
   }
   getBusinessType() {
@@ -267,7 +268,8 @@ class App extends Component {
     customer.setCity(this.state.City);
     customer.setState(this.state.state);
     customer.setZip(this.state.zip);
-    customer.setBusinessType(this.state.BusinessType);
+    customer.setBusinessType(this.state.businessType);
+    console.log('here: ' + this.state.businessType)
 
     this.addCustomer(customer);
 
@@ -318,6 +320,7 @@ class App extends Component {
   }
 
   addCustomer(customer) {
+    console.log(customer.getBusinessType())
     this.addCustomerToDB(customer);
     this.addCustomerToArr(customer);
   }
@@ -526,7 +529,7 @@ class App extends Component {
   render() {
     var renderCreateCustomerButton = (
       <Button onClick={() => this.createCustomerButton()} id="createCustomerBtn" className="createCustomerBtn">
-        Create Customer
+        Create Customer 
       </Button>
     );
 
@@ -590,11 +593,16 @@ class App extends Component {
       ) : null
     );
 
+    var header =
+     <div className='header'>
+       <h1>ACME Widgets Rolodex</h1>
+     </div>
+                
+
     return (
       <div className="App">
-        
+        {header}
         {renderCreateCustomerButton}
-        {renderCustomers}
         {this.state.createCustomerSwitch ? (
           <div className="customerFillIn">
             <form onSubmit={this.onSubmitCustomer}>
@@ -727,6 +735,7 @@ class App extends Component {
             </form>
           </div>
         ) : null}
+        {renderCustomers}
       </div>
     );
   }
