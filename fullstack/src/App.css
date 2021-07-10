@@ -12,8 +12,9 @@
   padding: 10px;
   border-radius: 25px;
   
-  background-color: #f76c6c;
+  background-color: #5ab9ea;
   opacity: .75;
+  font-family: Georgia, 'Times New Roman', Times, serif;
 }
 
 .renderCustomers:hover {
@@ -21,7 +22,7 @@
 }
 
 .header {
-  background-color: #F8E9A1;
+  background-color: #3AAFA9;
   border: 3px solid black;
   padding: 10px;
   font-family: goudy old style ;
@@ -44,10 +45,44 @@
 }
 
 .createCustomerBtn:hover {
-  background-color: grey;
+  background-color: white;
 }
 
 body {
   background-color: #A8D0E6;
 }
 
+
+button {
+  background-color: #5ab9ea; /* Green */
+  border: solid #A8D0E6;
+  color: black;
+  padding: 12px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  font-family:  Verdana, Geneva, Tahoma, sans-serif;
+  border-radius: 15px;
+}
+
+button:hover {
+  background-color: white;
+}
+
+input[type='submit'] {
+  background-color: #5ab9ea; /* Green */
+  border: solid #A8D0E6;
+  color: black;
+  padding: 12px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  font-family:  Verdana, Geneva, Tahoma, sans-serif;
+  border-radius: 15px;
+}
+
+input[type='submit']:hover {
+  background-color: white;
+}

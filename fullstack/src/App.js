@@ -1,9 +1,14 @@
-import logo from "./logo.svg";
 import "./App.css";
 import React, { Component } from "react";
 
 const KEY_TOO_BIG = -1;
-const NUM_OF_INPUTS = 9; //# of values for customer data type e.g. : firstname, lastname...
+const PATH_BASE = 'http://localhost:3001';
+const PATH_CONTACTS = '/contacts';
+const PATH_CUSTOMER = '/customer';
+const PATH_DELETE = '/delete';
+const PATH_ADD = '/add';
+const PATH_CASCADE = '/cascade';
+const PATH_FIND = '/find';
 
 class CustomerContact {
   constructor() {
@@ -120,7 +125,6 @@ class Customer {
   }
 
   setBusinessType(businessType) {
-    console.log('setter'+businessType)
     this.businessType = businessType;
   }
   getBusinessType() {
@@ -188,7 +192,7 @@ class App extends Component {
 
   deleteContactInDb(contact) {
     fetch(
-      `http://localhost:3001/customer/contact/delete?Firstname=${contact.getFirstName()}&Lastname=${contact.getLastName()}&Phone_number=${contact.getPhoneNum()}&Email_address=${contact.getEmailAdd()}&customerID=${contact.getCustomerID()}`
+      `${PATH_BASE}${PATH_CUSTOMER}${PATH_CONTACTS}${PATH_DELETE}?Firstname=${contact.getFirstName()}&Lastname=${contact.getLastName()}&Phone_number=${contact.getPhoneNum()}&Email_address=${contact.getEmailAdd()}&customerID=${contact.getCustomerID()}`
     );
   }
 
@@ -213,7 +217,7 @@ class App extends Component {
 
   addCustomerContactToDB(customerContact) {
     fetch(
-      `http://localhost:3001/customer/contact/add?Firstname=${customerContact.getFirstName()}&Lastname=${customerContact.getLastName()}&Phone_number=${customerContact.getPhoneNum()}&Email_address=${customerContact.getEmailAdd()}&customerID=${customerContact.getCustomerID()}`
+      `${PATH_BASE}${PATH_CUSTOMER}${PATH_CONTACTS}${PATH_ADD}?Firstname=${customerContact.getFirstName()}&Lastname=${customerContact.getLastName()}&Phone_number=${customerContact.getPhoneNum()}&Email_address=${customerContact.getEmailAdd()}&customerID=${customerContact.getCustomerID()}`
     );
   }
 
@@ -243,7 +247,6 @@ class App extends Component {
     this.addCustomerContact(contact);
 
     var button = document.getElementById("createContact");
-    console.log(button.style.display);
     button.style.display = "inline";
 
     this.setState({ createContactSwitch: false });
@@ -269,7 +272,6 @@ class App extends Component {
     customer.setState(this.state.state);
     customer.setZip(this.state.zip);
     customer.setBusinessType(this.state.businessType);
-    console.log('here: ' + this.state.businessType)
 
     this.addCustomer(customer);
 
@@ -320,7 +322,6 @@ class App extends Component {
   }
 
   addCustomer(customer) {
-    console.log(customer.getBusinessType())
     this.addCustomerToDB(customer);
     this.addCustomerToArr(customer);
   }
@@ -337,7 +338,7 @@ class App extends Component {
 
   deleteCascadeContactsDB(customer) {
     fetch(
-      `http://localhost:3001/customer/contact/cascade/delete?customerID=${customer.getID()}`
+      `${PATH_BASE}${PATH_CUSTOMER}${PATH_CONTACTS}${PATH_CASCADE}${PATH_DELETE}?customerID=${customer.getID()}`
     );
   }
 
@@ -357,33 +358,52 @@ class App extends Component {
     var holder = [...this.state.customerArr]; //needs to be copied over because data is immutable when dealing w/ react
     holder[key] = null;
     this.setState({ customerArr: holder });
-    console.log("deleted customer key: " + key);
   }
 
   deleteFromDB(customer) {
-    fetch(`http://localhost:3001/customer/delete?ID=${customer.getID()}`).catch(
+    fetch(`${PATH_BASE}${PATH_CUSTOMER}${PATH_DELETE}?ID=${customer.getID()}`).catch(
       (err) => console.error(err)
     );
   }
 
-  addCustomerToDB(customer) {
+ async addCustomerToDB(customer) {
     fetch(
-      `http://localhost:3001/customer/add?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`
+      `${PATH_BASE}${PATH_CUSTOMER}${PATH_ADD}?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`
     ).catch((err) => console.error(err));
+    
+    //Need time to place data in DB 
+    await new Promise((resolve, reject) => setTimeout(resolve, 1000));
   }
-
+  //find the customer ID made first then adds into the hash
   async addCustomerToArr(customer) {
-    //find the customer ID made first then adds into the array
     let response = await fetch(
-      `http://localhost:3001/customer/find?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`
+      `${PATH_BASE}${PATH_CUSTOMER}${PATH_FIND}?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`
     );
     let result = await response.json();
+    
+    var id = null;
+    var attempts = 0
+    
+    while(id == null) {
+      await new Promise((resolve, reject) => setTimeout(resolve, 500));
+      
+      attempts++;
+      
+      let respondAgain = await fetch(
+        `${PATH_BASE}${PATH_CUSTOMER}${PATH_FIND}?Firstname=${customer.getFirstName()}&Lastname=${customer.getLastName()}&Description=${customer.getDescription()}&address_line_1=${customer.getAddressOne()}&address_line_2=${customer.getAddressTwo()}&City=${customer.getCity()}&State=${customer.getState()}&Zip=${customer.getZip()}&Business_type=${customer.getBusinessType()}`
+      );
 
-    await new Promise((resolve, reject) => setTimeout(resolve, 300));
-
-    var id = this.sqlParser(result)[0];
-    console.log(id);
+      id  = this.sqlParser(result)[0];
+      result = await respondAgain.json();
+      
+      if (attempts >= 3) break; 
+    }
+   
     this.setState({ check: id });
+    if(this.state.check == null) {
+      this.state.check = 'default';
+    }
+    
     customer.setID(this.state.check);
     this.addCustomerToHash(customer);
   }
@@ -393,7 +413,7 @@ class App extends Component {
     this.customerArr = new Array(maxSize);
     this.setState({ customerArr: this.customerArr });
 
-    while (customerHolder.length != 0) {
+    while (customerHolder.length !== 0) {
       var customer = customerHolder.pop();
       var key = this.getNewHashKey(customer.getID(), maxSize);
 
@@ -428,8 +448,7 @@ class App extends Component {
   }
 
   //finds the hash in an O(1) search
-
-  createCustomers(newResults, numOfInputs) {
+  createCustomers(newResults) {
     var maxSize = 0;
     var customerHolder = [];
 
@@ -448,14 +467,13 @@ class App extends Component {
       customer.setID(newResults.shift());
 
       customerHolder.push(customer);
-      console.log(customer);
       maxSize++;
     }
 
     this.placeArrIntoHashFromDB(customerHolder, maxSize);
   }
 
-  //parses and places into customer objects and return a customer object array from init database input
+  //parses recordsets data incoming from DB
   sqlParser(data) {
     var newResults = [];
     for (let key in data) {
@@ -469,7 +487,6 @@ class App extends Component {
         });
       }
     }
-
     return newResults;
   }
 
@@ -479,19 +496,17 @@ class App extends Component {
   }
 
   getCustomers = (_) => {
-    return fetch("http://localhost:3001") //TODO format into vars
+    return fetch(`${PATH_BASE}`) 
       .then((result) => result.json())
       .then((data) => {
-        this.createCustomers(this.sqlParser(data), NUM_OF_INPUTS);
+        this.createCustomers(this.sqlParser(data));
       });
   };
 
   getContacts = (_) => {
-    return fetch("http://localhost:3001/contacts")
+    return fetch(`${PATH_BASE}${PATH_CONTACTS}`)
       .then((result) => result.json())
       .then((data) => {
-        //console.log(this.sqlParser(data));
-        //console.log('getContacts')
         this.initContactsParser(this.sqlParser(data));
       });
   };
@@ -515,7 +530,7 @@ class App extends Component {
     var key = this.hashKey(customerID);
 
     if (this.state.customerArr[key] != null) {
-      while (this.customerArr[key].getID() != customerID) {
+      while (this.customerArr[key].getID() !== customerID) {
         key++;
 
         if (key > this.customerArr.length) {
@@ -561,7 +576,7 @@ class App extends Component {
             <br />
             {customer.getFirstName()}'s Contacts: <br />
             {this.state.customerContactArr.map((contact) =>
-              contact.getCustomerID() == customer.getID() ? (
+              contact.getCustomerID() === customer.getID() ? (
                 <div>
                   <details>
                     <summary>
