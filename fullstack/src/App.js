@@ -268,7 +268,7 @@ class App extends Component {
     customer.setDescription(this.state.description);
     customer.setAddressOne(this.state.addressLineOne);
     customer.setAddressTwo(this.state.addressLineTwo);
-    customer.setCity(this.state.City);
+    customer.setCity(this.state.city);
     customer.setState(this.state.state);
     customer.setZip(this.state.zip);
     customer.setBusinessType(this.state.businessType);
