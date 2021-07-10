@@ -4,6 +4,8 @@ var cors = require("cors");
 app.use(cors());
 
 var sql = require("mssql");
+const port = 3001;
+
 
 //settings to connecting to DB
 var config = {
@@ -19,7 +21,7 @@ var config = {
   },
 };
 
-var server = app.listen(3001, function () {
+var server = app.listen(port, function () {
   console.log("Server is running..");
 });
 
