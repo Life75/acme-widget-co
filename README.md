@@ -4,8 +4,8 @@ This project was created by Austyn D. Washington
 ## Instructions: How to get started
 
 You will need: 
-### Node.js 
-### Microsoft SQL Server Management Studio 18 
+## Node.js 
+## Microsoft SQL Server Management Studio 18 
 
 
 ### SQL server and tables setup
@@ -38,7 +38,7 @@ press the `submit` button to continue.
 
 2. The customer should display on the right side of the web application page, there will have a drop down for the customer's information.
 
-3. Within the customer dropdown the user can assign a contact to that specific customer with the `Add contact` button. 
+3. Within the customer dropdown the user can assign a contact to that specific customer with the `Add contact` button that will display a fill in boxes on the left side of the webpage to fill in. 
 
 4. The user can also delete that customer with the `Delete Customer` button.
 
