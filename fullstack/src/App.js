@@ -56,14 +56,14 @@ class CustomerContact {
 
 class Customer {
   constructor() {
-    this.firstname = "default";
-    this.lastname = "default";
-    this.description = "default";
-    this.addressOne = "default";
-    this.addressTwo = "default";
+    this.firstname = "";
+    this.lastname = "";
+    this.description = "";
+    this.addressOne = "";
+    this.addressTwo = "";
     this.city = "";
     this.state = "";
-    this.businessType = "default";
+    this.businessType = "";
     this.key = null;
     this.id = -1;
   }
@@ -372,7 +372,7 @@ class App extends Component {
     ).catch((err) => console.error(err));
     
     //Need time to place data in DB 
-    await new Promise((resolve, reject) => setTimeout(resolve, 1000));
+    await new Promise((resolve, reject) => setTimeout(resolve, 300));
   }
   //find the customer ID made first then adds into the hash
   async addCustomerToArr(customer) {

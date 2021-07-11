@@ -33,7 +33,7 @@ app.get("/", function (req, res) {
     }
     var request = new sql.Request();
 
-    request.query("select * from tb_customer", function (err, recordset) {
+    request.query("SELECT * FROM tb_customer", function (err, recordset) {
       if (err) console.log(err);
       res.send(recordset);
     });
@@ -48,7 +48,7 @@ app.get("/contacts", function (req, res) {
     }
     var request = new sql.Request();
 
-    request.query("select * from tb_contacts", function (err, recordset) {
+    request.query("SELECT * FROM tb_contacts", function (err, recordset) {
       if (err) console.log(err);
       res.send(recordset);
     });

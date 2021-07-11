@@ -15,7 +15,7 @@ You will need:
 
 You must also access the `properties` tab to and scroll until you find `IPAII` (most likely at the very bottom) and type into the TCP port: 1433 then press okay.
 
-3. Make an account with the username `sa` and password `sa` (Make sure to disable `user must change password at next login` check box). Go into the status tab and change login to `enabled`.Go into the  server properties and go into the security tab and change server authentication to `SQL Server and windows authentication`. Restart the server. 
+3. Make an account with the username `sa` and password `sa` (Make sure to disable `user must change password at next login` check box). Go into the status tab and change login to `enabled`. Go into the  server properties and go into the security tab and change server authentication to `SQL Server and windows authentication`. Restart the server. 
 
 4. Run `init.sql` through MS SQL, this will create the `Customer` database along with the 
 table `tb_customer` for customers and table `tb_contacts` for contacts. 
