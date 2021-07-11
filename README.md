@@ -13,7 +13,7 @@ You will need:
 
 2. TCP must be enabled through the SQL server network configurations. You can access this via Computer Management > Services and Applications > SQL Server Configuration Manager > SQL Server Network Configuration > Protocals for SQL Express. 
 
-You must also access the `properties` tab to and scroll until you find `IPAII` (most likely at the very bottem) and type into the TCP port: 1433 then press okay.
+You must also access the `properties` tab to and scroll until you find `IPAII` (most likely at the very bottom) and type into the TCP port: 1433 then press okay.
 
 3. Make an account with the username `sa` and password `sa` (Make sure to disable `user must change password at next login` check box). Go into the status tab and change login to `enabled`.Go into the  server properties and go into the security tab and change server authentication to `SQL Server and windows authentication`. Restart the server. 
 
